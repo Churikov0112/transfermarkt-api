@@ -28,29 +28,28 @@ class TransfermarktCoachProfile(TransfermarktBase):
         self.response = {}
         self.response["id"] = self.coach_id
 
-        # 1. Image URL
+        # 1. Name - собираем все текстовые фрагменты
+        name_parts = self.get_list_by_xpath("//h1[@class='data-header__headline-wrapper']//text()")
+        if name_parts:
+            name = ' '.join([trim(part) for part in name_parts])
+            self.response["name"] = name
+        else:
+            self.response["name"] = None
+
+        # 2. Image URL
         image_url = self.get_text_by_xpath("//div[@id='fotoauswahlOeffnen']/img/@src")
         if image_url and '?' in image_url:
             image_url = image_url.split('?')[0]
         self.response["image_url"] = image_url
 
-        # 2. Citizenship - используем get_text_by_xpath с правильным XPath
-        # get_text_by_xpath возвращает строку, если указать правильный путь к тексту
+        # 3. Citizenship
         citizenship = self.get_text_by_xpath("//span[@itemprop='nationality']/text()")
         if citizenship:
             self.response["citizenship"] = trim(citizenship)
         else:
-            # Альтернативный вариант: берем текст из всего элемента
-            citizenship_elem = self.get_text_by_xpath("//span[@itemprop='nationality']")
-            if citizenship_elem:
-                # Извлекаем только текст, исключая HTML теги
-                import re
-                text = re.sub(r'<[^>]+>', '', citizenship_elem)
-                self.response["citizenship"] = trim(text)
-            else:
-                self.response["citizenship"] = None
+            self.response["citizenship"] = None
 
-        # 3. Current club - название и ID
+        # 4. Current club
         club_name = self.get_text_by_xpath("//span[@class='data-header__club']/a/text()")
         if club_name:
             club_name = trim(club_name)
@@ -58,7 +57,7 @@ class TransfermarktCoachProfile(TransfermarktBase):
         club_url = self.get_text_by_xpath("//span[@class='data-header__club']/a/@href")
         club_id = extract_from_url(club_url) if club_url else None
 
-        self.response["occupation"] = {
+        self.response["current_club"] = {
             "id": club_id,
             "name": club_name
         }
