@@ -19,7 +19,7 @@ class PlayerPosition(TransfermarktBaseModel):
 
 class PlayerClub(TransfermarktBaseModel):
     id: Optional[str]
-    name: str
+    name: Optional[str]
     joined: Optional[date]
     contract_expires: Optional[date]
     contract_option: Optional[str]
