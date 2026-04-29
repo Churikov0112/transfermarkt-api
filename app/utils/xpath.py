@@ -207,6 +207,17 @@ class NationalTeams:
         CONFEDERATIONS = BASE + "//tbody//tr//td[@class='links'][not(contains(@class, 'no-border-rechts'))]//text()"
         MARKET_VALUES = BASE + "//tbody//tr//td[contains(@class, 'rechts')]//b//text()"
 
+    class Players:
+        TEAM_NAME = "//header//h1//text()"
+        TEAM_URL = "//link[@rel='canonical']//@href"
+        ROWS = "//table[contains(@class, 'items')]//tbody//tr[@class='odd' or @class='even']"
+        PLAYER_URL = ".//td[contains(@class, 'hauptlink')]//a[contains(@href, '/profil/spieler/')]/@href"
+        PLAYER_NAME = ".//td[contains(@class, 'hauptlink')]//a[contains(@href, '/profil/spieler/')]/text()"
+        POSITION = ".//td[contains(@class, 'rueckennummer')]/@title"
+        AGE = ".//td[contains(@class, 'zentriert')][1]//text()"
+        CLUB_NAME = ".//td[contains(@class, 'zentriert')]//a//img/@title"
+        MARKET_VALUE = ".//td[contains(@class, 'rechts') and contains(@class, 'hauptlink')]//a//text()"
+
 
 class Pagination:
     PAGE_NUMBER_LAST = "//li[contains(@class, 'list-item--icon-last-page')]//@href"
