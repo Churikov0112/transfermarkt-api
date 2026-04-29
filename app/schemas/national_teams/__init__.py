@@ -1,1 +1,2 @@
 from app.schemas.national_teams.most_valuable import MostValuableNationalTeams as MostValuableNationalTeams
+from app.schemas.national_teams.search import NationalTeamSearch as NationalTeamSearch
