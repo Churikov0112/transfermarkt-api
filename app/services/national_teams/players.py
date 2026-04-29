@@ -1,0 +1,63 @@
+from dataclasses import dataclass
+
+from app.services.base import TransfermarktBase
+from app.utils.utils import extract_from_url
+from app.utils.xpath import NationalTeams
+
+
+@dataclass
+class TransfermarktNationalTeamPlayers(TransfermarktBase):
+    """
+    A class for retrieving and parsing national team players from Transfermarkt.
+
+    Args:
+        team_id (str): The unique identifier of the national team.
+        season_id (str): The season identifier. If not provided, the current season is used.
+    """
+
+    team_id: str = None
+    season_id: str = None
+    URL: str = "https://www.transfermarkt.com/-/kader/verein/{team_id}/saison_id/{season_id}"
+
+    def __post_init__(self) -> None:
+        self.URL = self.URL.format(team_id=self.team_id, season_id=self.season_id or "")
+        self.page = self.request_url_page()
+        self.raise_exception_if_not_found(xpath=NationalTeams.Players.TEAM_NAME)
+        self.__update_season_id()
+
+    def __update_season_id(self) -> None:
+        if self.season_id is None:
+            self.season_id = extract_from_url(self.get_text_by_xpath(NationalTeams.Players.TEAM_URL), "season_id")
+
+    def __parse_players(self) -> list:
+        rows = self.page.xpath(NationalTeams.Players.ROWS)
+        players = []
+
+        for row in rows:
+            player_url = row.xpath(NationalTeams.Players.PLAYER_URL)
+            player_name = row.xpath(NationalTeams.Players.PLAYER_NAME)
+            position = row.xpath(NationalTeams.Players.POSITION)
+            age = row.xpath(NationalTeams.Players.AGE)
+            club_name = row.xpath(NationalTeams.Players.CLUB_NAME)
+            market_value = row.xpath(NationalTeams.Players.MARKET_VALUE)
+
+            player_url = player_url[0].strip() if player_url else None
+            players.append(
+                {
+                    "id": extract_from_url(player_url) if player_url else None,
+                    "name": player_name[0].strip() if player_name else None,
+                    "position": position[-1].strip() if position else None,
+                    "age": age[0].strip() if age else None,
+                    "club": club_name[0].strip() if club_name else None,
+                    "marketValue": market_value[0].strip() if market_value else None,
+                }
+            )
+
+        return [player for player in players if player.get("id") and player.get("name")]
+
+    def get_national_team_players(self) -> dict:
+        self.response["id"] = self.team_id
+        self.response["seasonId"] = self.season_id
+        self.response["players"] = self.__parse_players()
+
+        return self.response
