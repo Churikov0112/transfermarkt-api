@@ -198,6 +198,16 @@ class Competitions:
         NAMES = "//td[@class='hauptlink no-border-links']//a//text()"
 
 
+class NationalTeams:
+    class MostValuable:
+        BASE = "//table[@class='items']"
+        URLS = BASE + "//tbody//tr//td[contains(@class, 'hauptlink')]//a/@href"
+        NAMES = BASE + "//tbody//tr//td[contains(@class, 'hauptlink')]//a/@title"
+        COUNTRIES = BASE + "//tbody//tr//img[contains(@class, 'flaggenrahmen')]/@title"
+        CONFEDERATIONS = BASE + "//tbody//tr//td[@class='links'][not(contains(@class, 'no-border-rechts'))]//text()"
+        MARKET_VALUES = BASE + "//tbody//tr//td[contains(@class, 'rechts')]//b//text()"
+
+
 class Pagination:
     PAGE_NUMBER_LAST = "//li[contains(@class, 'list-item--icon-last-page')]//@href"
     PAGE_NUMBER_ACTIVE = "//li[contains(@class, 'list-item--active')]//@href"
