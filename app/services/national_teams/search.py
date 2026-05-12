@@ -12,22 +12,20 @@ class TransfermarktNationalTeamSearch(TransfermarktBase):
 
     Args:
         query (str): National team search text.
-        page_number (int): Ranking page number.
         URL (str): URL template for the ranking page.
     """
 
     query: str = None
-    page_number: int = 1
     URL: str = "https://www.transfermarkt.com/vereins-statistik/wertvollstenationalmannschaften/marktwertetop?page={page_number}"
 
     def __post_init__(self) -> None:
         """Initialize the TransfermarktNationalTeamSearch class."""
-        self.URL = self.URL.format(page_number=self.page_number)
+        self.URL = self.URL.format(page_number=1)
         self.page = self.request_url_page()
 
-    def __parse_search_results(self) -> list:
+    def __parse_page_results(self) -> list:
         """
-        Parse ranking rows and filter them by query.
+        Parse ranking rows on the current page and filter them by query.
 
         Returns:
             list: Filtered national teams with ranking metadata.
@@ -66,14 +64,21 @@ class TransfermarktNationalTeamSearch(TransfermarktBase):
 
     def search_national_teams(self) -> dict:
         """
-        Search national teams by name from ranking page.
+        Search national teams by name across all ranking pages.
 
         Returns:
-            dict: Query metadata, pagination metadata and filtered rows.
+            dict: Query metadata and filtered rows from all pages.
         """
+        last_page_number = self.get_last_page_number()
+        results = self.__parse_page_results()
+
+        for page_number in range(2, last_page_number + 1):
+            url = self.URL.rsplit("=", 1)[0] + f"={page_number}"
+            self.URL = url
+            self.page = self.request_url_page()
+            results.extend(self.__parse_page_results())
+
         self.response["query"] = self.query
-        self.response["pageNumber"] = self.page_number
-        self.response["lastPageNumber"] = self.get_last_page_number()
-        self.response["results"] = self.__parse_search_results()
+        self.response["results"] = results
 
         return self.response

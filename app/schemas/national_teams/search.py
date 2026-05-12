@@ -14,6 +14,4 @@ class NationalTeamSearchResult(TransfermarktBaseModel):
 
 class NationalTeamSearch(TransfermarktBaseModel, AuditMixin):
     query: str
-    page_number: int
-    last_page_number: int
     results: list[NationalTeamSearchResult]
