@@ -13,6 +13,4 @@ class MostValuableNationalTeamResult(TransfermarktBaseModel):
 
 
 class MostValuableNationalTeams(TransfermarktBaseModel, AuditMixin):
-    page_number: int
-    last_page_number: int
     results: list[MostValuableNationalTeamResult]
